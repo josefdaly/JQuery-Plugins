@@ -7,7 +7,7 @@ $.Carousel = function(el) {
   $('.slide-left').on('click', this.slideLeft.bind(that));
   $('.slide-right').on('click', this.slideRight.bind(that));
   this.$images = $('img');
-  // this.$currentImage = this.$image.
+
 };
 
 $.fn.carousel = function() {
@@ -25,20 +25,26 @@ $.Carousel.prototype.slideRight = function() {
 };
 
 $.Carousel.prototype.slide = function(dir) {
-  // keep new center, old center
+  if (this.transitioning) {
+    return;
+  }
+  this.transitioning = true;
+
   var that = this;
+  var $oldImage = this.$images.eq(this.activeIdx);
   if (dir > 0) {
-    $('.active').addClass('left');
+    $oldImage.addClass('left');
   } else {
-    $('.active').addClass('right');
+    $oldImage.addClass('right');
   }
 
-  $('.active').one('transitionend', function (){
+  $oldImage.one('transitionend', function (){
     $('.left').removeClass('left');
     $('.right').removeClass('right');
+    $oldImage.removeClass('active');
+    that.transitioning = false;
   });
 
-  $('.active').removeClass('active');
   if (that.activeIdx + dir < 0) {
     that.activeIdx = that.$images.length - 1;
   } else if (that.activeIdx + dir > that.$images.length - 1) {
@@ -47,14 +53,19 @@ $.Carousel.prototype.slide = function(dir) {
     that.activeIdx += dir;
   }
   that.$images.eq(that.activeIdx).addClass('active');
+  // console.log(that.activeIdx);
+  var $newImage = this.$images.eq(this.activeIdx);
   if (dir > 0) {
-    $('.active').addClass('right');
+    $newImage.addClass('right');
   } else {
-    $('.active').addClass('left');
+    $newImage.addClass('left');
   }
 
   setTimeout(function(){
-    $('.left').removeClass('left');
-    $('.right').removeClass('right');
+    $newImage.removeClass('left');
+    $newImage.removeClass('right');
   }, 0);
+
+  // console.log($oldImage);
+  // console.log($newImage);
 };
